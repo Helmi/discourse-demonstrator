@@ -17,7 +17,7 @@ class Demonstrator
       notify_complete(topic)
       sleep 30
     else
-      Rails.logger.error("Something is broeken")
+      Rails.logger.error("Something is broken")
     end
   end
 
@@ -57,7 +57,7 @@ class Demonstrator
 
   def self.invite_missing(ids, invited_by)
     group = Group.find_by_name(SiteSetting.demonstrator_group)
-    @process_log += "Adding user: "
+    @process_log += "## Adding Users:\n\n"
     ids.each do |id|
       next unless id[:id]
       next if UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
@@ -73,13 +73,13 @@ class Demonstrator
         opts[:group_ids] = [group.id]
       end
       Invite.generate(invited_by, opts)
-      @process_log += "Invited #{id[:email]}, "
+      @process_log += "Invited #{id[:email]}\n "
     end
-    @process_log += "\nDone adding users!\n"
+    @process_log += "\nDone adding users!\n\n\n"
   end
 
   def self.remove_missing_id(ids)
-    @process_log += "\n\n###Removing Users\n"
+    @process_log += "## Removing Users\n\n"
     demonstrator_ids = ids.map { |i| (i[:id]).to_i }
     manager_group = Group.find_by_name(SiteSetting.demonstrator_manager_group)
     removed_group = Group.find_by_name(SiteSetting.demonstrator_removed_group)
