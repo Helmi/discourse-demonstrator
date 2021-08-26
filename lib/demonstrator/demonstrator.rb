@@ -57,14 +57,14 @@ class Demonstrator
 
   def self.invite_missing(ids, invited_by)
     group = Group.find_by_name(SiteSetting.demonstrator_group)
-    @process_log += "## Adding Users:\n\n"
+    @process_log += "## Neue User prüfen:\n\n"
     ids.each do |id|
       next unless id[:id]
       next if UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
       next if User.find_by_email(id[:email])
       invite = Invite.find_by(email: (id[:email]).downcase)
       if invite
-        @process_log += "Skipping invite for #{id[:email]}\n"
+        @process_log += "Übersprungen: #{id[:email]}\n"
         next
       end
       opts = {}
@@ -73,13 +73,13 @@ class Demonstrator
         opts[:group_ids] = [group.id]
       end
       Invite.generate(invited_by, opts)
-      @process_log += "Invited #{id[:email]}\n "
+      @process_log += "\n**Eingeladen** #{id[:email]}\n\n "
     end
-    @process_log += "\nDone adding users!\n\n\n"
+    @process_log += "\nKeine weiteren neuen User\n\n\n"
   end
 
   def self.remove_missing_id(ids)
-    @process_log += "## Removing Users\n\n"
+    @process_log += "## User entfernen\n\n"
     demonstrator_ids = ids.map { |i| (i[:id]).to_i }
     manager_group = Group.find_by_name(SiteSetting.demonstrator_manager_group)
     removed_group = Group.find_by_name(SiteSetting.demonstrator_removed_group)
@@ -109,7 +109,7 @@ class Demonstrator
       demo_group_user = GroupUser.find_by(user_id: user.id, group_id: demo_group.id)
       demo_group_user.destroy if demo_group_user
       GroupUser.find_or_create_by(user_id: user.id, group_id: removed_group.id)
-      @process_log += "+#{user.username}\n"
+      @process_log += "#{user.username}\n"
     end
   end
 
