@@ -49,7 +49,7 @@ class Demonstrator
     email_column = sheet.first.find_index('Email')
     id_column = sheet.first.find_index('Demonstrator ID')
     group_member_column = sheet.first.find_index('Provisionsebene')
-    sheet.each do |row|
+    sheet.drop(1).each do |row|
       ids.append({ id: row[id_column], email: row[email_column], add_to_group: (row[group_member_column] == 1) })
     end
     ids
