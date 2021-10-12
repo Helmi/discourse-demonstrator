@@ -59,12 +59,21 @@ class Demonstrator
     group = Group.find_by_name(SiteSetting.demonstrator_group)
     @process_log += "## Neue User prüfen:\n\n"
     ids.each do |id|
+      # @process_log += "#{index} -> "
       next unless id[:id]
-      next if UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
-      next if User.find_by_email(id[:email])
-      invite = Invite.find_by(email: (id[:email]).downcase)
-      if invite
-        @process_log += "Übersprungen: #{id[:email]}\n"
+      exists_ucf = UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
+      if exists_ucf
+        @process_log += "Account mit Demo-ID #{id[:id]} existiert. \n"
+        next
+      end
+      exists_email = User.find_by_email(id[:email])
+      if exists_email
+        @process_log += "Account mit E-Mail #{id[:email]} existiert. \n"
+        next
+      end
+      exists_invite = Invite.find_by(email: (id[:email]).downcase)
+      if exists_invite
+        @process_log += "Einladung an #{id[:email]} existiert. \n"
         next
       end
       opts = {}
