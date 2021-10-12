@@ -62,17 +62,19 @@ class Demonstrator
     ids.each.with_index(1) do |id, index|
       @process_log += "#{index} -> "
       next unless id[:id]
-      if UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
-        @process_log += "Account mit Demo-ID #{id[:id]} existiert \n"
+      exists_ucf = UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
+      if exists_ucf
+        @process_log += "Account mit Demo-ID #{id[:id]} existiert. \n"
         next
       end
-      if User.find_by_email(id[:email])
-        @process_log += "Account mit E-Mail #{id[:email]} existiert \n"
+      exists_email = User.find_by_email(id[:email])
+      if exists_email
+        @process_log += "Account mit E-Mail #{id[:email]} existiert. \n"
         next
       end
-      invite = Invite.find_by(email: (id[:email]).downcase)
-      if invite
-        @process_log += "Einladung an #{id[:email]} existiert\n"
+      exists_invite = Invite.find_by(email: (id[:email]).downcase)
+      if exists_invite
+        @process_log += "Einladung an #{id[:email]} existiert. \n"
         next
       end
       opts = {}
