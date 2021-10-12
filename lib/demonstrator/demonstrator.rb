@@ -103,6 +103,8 @@ class Demonstrator
         end
       end
       next if ucf && demonstrator_ids.include?(ucf.value.to_i)
+      ucf.value = ""
+      ucf.save
       user.email = "#{user.username}@removed.invalid"
       user.active = false
       user.save
