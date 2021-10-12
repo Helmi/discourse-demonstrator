@@ -60,7 +60,7 @@ class Demonstrator
     group = Group.find_by_name(SiteSetting.demonstrator_group)
     @process_log += "## Neue User prüfen:\n\n"
     ids.each.with_index(1) do |id, index|
-      @process_log += "#{index} → "
+      @process_log += "#{index} -> "
       next unless id[:id]
       if UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
         @process_log += "Account mit Demo-ID #{id[:id]} existiert \n"
