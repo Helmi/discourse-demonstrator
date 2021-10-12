@@ -50,7 +50,7 @@ class Demonstrator
     id_column = sheet.first.find_index('Demonstrator ID')
     group_member_column = sheet.first.find_index('Provisionsebene')
     sheet.each 1 do |row|
-      next unless validates row[email_column], format: { with: URI::MailTo::EMAIL_REGEXP }
+      next unless (row[email_column] =~ URI::MailTo::EMAIL_REGEXP)
       ids.append({ id: row[id_column], email: row[email_column], add_to_group: (row[group_member_column] == 1) })
     end
     ids
