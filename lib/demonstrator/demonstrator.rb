@@ -59,7 +59,6 @@ class Demonstrator
     group = Group.find_by_name(SiteSetting.demonstrator_group)
     @process_log += "## Neue User prüfen:\n\n"
     ids.each do |id|
-      # @process_log += "#{index} -> "
       next unless id[:id]
       exists_ucf = UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
       if exists_ucf
