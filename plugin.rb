@@ -8,7 +8,7 @@
 
 #gem 'gimite-google-spreadsheet-ruby', '0.0.5', { require: false }
 gem 'ruby-ole', '1.2.12', { require: false }
-gem "spreadsheet", "1.2.0", { require: false }
+gem "spreadsheet", "1.2.1", { require: false }
 
 enabled_site_setting :demonstrator_enabled
 load File.expand_path('lib/demonstrator/demonstrator.rb', __dir__)

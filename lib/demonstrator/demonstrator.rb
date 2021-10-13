@@ -62,17 +62,13 @@ class Demonstrator
       next unless id[:id]
       @process_log += "#{index} -> "
       exists_ucf = UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
-      unless exists_ucf
-        @process_log += "User mit Demo-ID #{id[:id]} bereits vorhanden.\n"
+      if exists_ucf
         next
       end
-      exists_email = User.find_by_email(id[:email])
-      unless exists_email
-        @process_log += "User mit E-Mail #{id[:email]} bereits vorhanden.\n"
-        next
-      end
-      exists_invite = Invite.find_by(email: (id[:email]).downcase)
-      if exists_invite
+
+      next if User.find_by_email(id[:email])
+      invite = Invite.find_by(email: (id[:email]).downcase)
+      if invite
         @process_log += "Einladung an #{id[:email]} existiert schon.\n"
         next
       end
