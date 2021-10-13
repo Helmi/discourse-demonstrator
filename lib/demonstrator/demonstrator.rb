@@ -57,9 +57,10 @@ class Demonstrator
 
   def self.invite_missing(ids, invited_by)
     group = Group.find_by_name(SiteSetting.demonstrator_group)
-    @process_log += "## Neue User prüfen:\n\n"
-    ids.each do |id|
+    @process_log += "## Neue User importieren:\n\n"
+    ids.each.with_index(1) do |id, index|
       next unless id[:id]
+      @process_log += "#{index} -> "
       next if UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
       next if User.find_by_email(id[:email])
       invite = Invite.find_by(email: (id[:email]).downcase)
