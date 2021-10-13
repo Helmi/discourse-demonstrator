@@ -71,8 +71,8 @@ class Demonstrator
         @process_log += "User mit E-Mail #{id[:email]} bereits vorhanden.\n"
         next
       end
-      exists_ invite = Invite.find_by(email: (id[:email]).downcase)
-      if invite
+      exists_invite = Invite.find_by(email: (id[:email]).downcase)
+      if exists_invite
         @process_log += "Einladung an #{id[:email]} existiert schon.\n"
         next
       end
