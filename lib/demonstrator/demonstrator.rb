@@ -60,14 +60,19 @@ class Demonstrator
     @process_log += "## Neue User importieren:\n\n"
     ids.each.with_index(1) do |id, index|
       next unless id[:id]
-      @process_log += "#{index} -> "
+      @process_log += "#{index} (#{id[:id]}) -> "
       exists_ucf = UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
       if exists_ucf
         @process_log += "Demo-ID #{id[:id]} existiert schon.\n"
         next
       end
 
-      next if User.find_by_email(id[:email])
+      exists_email = User.find_by_email(id[:email].downcase)
+      if exists_email
+        @process_log += "E-Mail #{id[:email]} existiert schon.\n"
+        next
+      end
+
       invite = Invite.find_by(email: (id[:email]).downcase)
       if invite
         @process_log += "Einladung an #{id[:email]} existiert schon.\n"
