@@ -8,11 +8,11 @@ class Demonstrator
   def self.process_topic(topic)
     if can_process_topic
       filename = get_demonstrator_filename(topic)
-      ids = get_demonstrator_ids(filename)
+      demos = get_demonstrator_ids(filename)
       invited_by = User.find(topic.user_id)
       @process_log = ""
-      invite_missing(ids, invited_by)
-      remove_missing_id(ids)
+      invite_missing(demos, invited_by)
+      remove_missing_id(demos)
 
       notify_complete(topic)
       sleep 30
@@ -43,55 +43,55 @@ class Demonstrator
   end
 
   def self.get_demonstrator_ids(filename)
-    ids = []
+    demos = []
     book = Spreadsheet.open(filename)
     sheet = book.worksheet 0
     email_column = sheet.first.find_index('Email')
     id_column = sheet.first.find_index('Demonstrator ID')
     group_member_column = sheet.first.find_index('Provisionsebene')
     sheet.each 1 do |row|
-      ids.append({ id: row[id_column], email: row[email_column], add_to_group: (row[group_member_column] == 1) })
+      demos.append({ id: row[id_column], email: row[email_column], add_to_group: (row[group_member_column] == 1) })
     end
-    ids
+    demos
   end
 
-  def self.invite_missing(ids, invited_by)
+  def self.invite_missing(demos, invited_by)
     group = Group.find_by_name(SiteSetting.demonstrator_group)
     @process_log += "## Neue User importieren:\n\n"
-    ids.each.with_index(1) do |id, index|
-      next unless id[:id]
-      @process_log += "#{index} (#{id[:id]}) -> "
-      exists_ucf = UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
+    demos.each.with_index(1) do |demo, index|
+      next unless demo[:id]
+      @process_log += "#{index} (#{demo[:id]}) -> "
+      exists_ucf = UserCustomField.find_by(value: demo[:id], name: SiteSetting.demonstrator_ucf)
       if exists_ucf
-        @process_log += "Demo-ID #{id[:id]} existiert schon.\n"
+        @process_log += "Demo-ID #{demo[:id]} existiert schon.\n"
         next
       end
 
-      exists_email = User.find_by(email: (id[:email]).downcase)
+      exists_email = User.find_by(email: (demo[:email]).downcase)
       if exists_email
-        @process_log += "E-Mail #{id[:email]} existiert schon.\n"
+        @process_log += "E-Mail #{demo[:email]} existiert schon.\n"
         next
       end
 
-      invite = Invite.find_by(email: (id[:email]).downcase)
+      invite = Invite.find_by(email: (demo[:email]).downcase)
       if invite
-        @process_log += "Einladung an #{id[:email]} existiert schon.\n"
+        @process_log += "Einladung an #{demo[:email]} existiert schon.\n"
         next
       end
       opts = {}
-      opts[:email] = id[:email]
-      if id[:add_to_group]
+      opts[:email] = demo[:email]
+      if demo[:add_to_group]
         opts[:group_ids] = [group.id]
       end
       Invite.generate(invited_by, opts)
-      @process_log += "\n**Eingeladen** #{id[:email]}\n\n "
+      @process_log += "\n**Eingeladen** #{demo[:email]}\n\n "
     end
     @process_log += "\nKeine weiteren neuen User\n\n\n"
   end
 
-  def self.remove_missing_id(ids)
+  def self.remove_missing_id(demos)
     @process_log += "## User entfernen\n\n"
-    demonstrator_ids = ids.map { |i| (i[:id]).to_i }
+    demonstrator_ids = demos.map { |i| (i[:id]).to_i }
     manager_group = Group.find_by_name(SiteSetting.demonstrator_manager_group)
     removed_group = Group.find_by_name(SiteSetting.demonstrator_removed_group)
     demo_group = Group.find_by_name(SiteSetting.demonstrator_group)
@@ -102,7 +102,7 @@ class Demonstrator
       ucf = UserCustomField.find_by(user_id: user.id, name: SiteSetting.demonstrator_ucf)
       if ucf
         gu = GroupUser.find_by(user_id: user.id, group_id: demo_group.id)
-        id = (ids.select { |i| i['id'] == ucf.value }).first
+        id = (demos.select { |i| i['id'] == ucf.value }).first
         if id
           if id['add_to_group']
             GroupUser.find_or_create_by(user_id: user.id, group_id: demo_group.id)
