@@ -2,13 +2,13 @@
 
 # name: discourse-demonstrator
 # about: Send invites to new demonstrators
-# version: 0.1.3
+# version: 0.1.4
 # authors: Pfaffman, Helmi
 # url: https://github.com/helmi/discourse-demonstrator
 
 #gem 'gimite-google-spreadsheet-ruby', '0.0.5', { require: false }
 gem 'ruby-ole', '1.2.12', { require: false }
-gem "spreadsheet", "1.2.1", { require: false }
+gem "spreadsheet", "1.2.0", { require: false }
 
 enabled_site_setting :demonstrator_enabled
 load File.expand_path('lib/demonstrator/demonstrator.rb', __dir__)
