@@ -67,7 +67,7 @@ class Demonstrator
         next
       end
 
-      exists_email = User.find_by_email(id[:email].downcase)
+      exists_email = User.find_by(email: (id[:email]).downcase)
       if exists_email
         @process_log += "E-Mail #{id[:email]} existiert schon.\n"
         next
