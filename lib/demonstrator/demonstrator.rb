@@ -61,11 +61,19 @@ class Demonstrator
     ids.each.with_index(1) do |id, index|
       next unless id[:id]
       @process_log += "#{index} -> "
-      next if UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
-      next if User.find_by_email(id[:email])
-      invite = Invite.find_by(email: (id[:email]).downcase)
+      exists_ucf = UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
+      if exists_ucf
+        @process_log += "User mit Demo-ID #{id[:id]} bereits vorhanden.\n"
+        next
+      end
+      exists_email = User.find_by_email(id[:email])
+      if exists_email
+        @process_log += "User mit E-Mail #{id[:email]} bereits vorhanden.\n"
+        next
+      end
+      exists_ invite = Invite.find_by(email: (id[:email]).downcase)
       if invite
-        @process_log += "Übersprungen: #{id[:email]}\n"
+        @process_log += "Einladung an #{id[:email]} existiert schon.\n"
         next
       end
       opts = {}
