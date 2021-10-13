@@ -50,7 +50,6 @@ class Demonstrator
     id_column = sheet.first.find_index('Demonstrator ID')
     group_member_column = sheet.first.find_index('Provisionsebene')
     sheet.each 1 do |row|
-      next unless (row[email_column] =~ URI::MailTo::EMAIL_REGEXP)
       ids.append({ id: row[id_column], email: row[email_column], add_to_group: (row[group_member_column] == 1) })
     end
     ids
@@ -59,20 +58,13 @@ class Demonstrator
   def self.invite_missing(ids, invited_by)
     group = Group.find_by_name(SiteSetting.demonstrator_group)
     @process_log += "## Neue User prüfen:\n\n"
-    ids.each.with_index(1) do |id, index|
-      @process_log += "#{index} → "
+    ids.each do |id|
       next unless id[:id]
-      if UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
-        @process_log += "Account mit Demo-ID #{id[:id]} existiert \n"
-        next
-      end
-      if User.find_by_email(id[:email])
-        @process_log += "Account mit E-Mail #{id[:email]} existiert \n"
-        next
-      end
+      next if UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
+      next if User.find_by_email(id[:email])
       invite = Invite.find_by(email: (id[:email]).downcase)
       if invite
-        @process_log += "Einladung an #{id[:email]} existiert\n"
+        @process_log += "Übersprungen: #{id[:email]}\n"
         next
       end
       opts = {}
