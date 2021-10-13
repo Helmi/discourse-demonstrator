@@ -63,6 +63,7 @@ class Demonstrator
       @process_log += "#{index} -> "
       exists_ucf = UserCustomField.find_by(value: id[:id], name: SiteSetting.demonstrator_ucf)
       if exists_ucf
+        @process_log += "Demo-ID #{id[:id]} existiert schon.\n"
         next
       end
 

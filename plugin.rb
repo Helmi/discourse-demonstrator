@@ -2,7 +2,7 @@
 
 # name: discourse-demonstrator
 # about: Send invites to new demonstrators
-# version: 0.1.4
+# version: 0.1.5
 # authors: Pfaffman, Helmi
 # url: https://github.com/helmi/discourse-demonstrator
 
