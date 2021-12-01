@@ -14,7 +14,7 @@ class Demonstrator
       @process_log = ""
       invite_missing(demos, invited_by)
       remove_missing_id(demos)
-
+      sleep 30
       notify_complete(topic)
     else
       Rails.logger.error("Something is broken")
@@ -36,7 +36,6 @@ class Demonstrator
   def self.get_demonstrator_filename(topic)
     local_store = FileStore::LocalStore.new
     post = topic.first_post
-    p post
     m = FILENAME_REGEX.match(post.raw)
     short_url = m[2]
     u = Upload.find_by(sha1: Upload.sha1_from_short_url(short_url))
