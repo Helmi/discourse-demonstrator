@@ -6,6 +6,7 @@ class Demonstrator
   require 'spreadsheet'
 
   def self.process_topic(topic)
+    @process_log = ""
     if can_process_topic
       filename = get_demonstrator_filename(topic)
       demos = get_demonstrator_ids(filename)
@@ -15,7 +16,6 @@ class Demonstrator
       remove_missing_id(demos)
 
       notify_complete(topic)
-      sleep 30
     else
       Rails.logger.error("Something is broken")
     end
@@ -35,8 +35,9 @@ class Demonstrator
 
   def self.get_demonstrator_filename(topic)
     local_store = FileStore::LocalStore.new
-    p = Post.find_by(topic_id: topic.id, post_number: 1)
-    m = FILENAME_REGEX.match(p.raw)
+    post = topic.first_post
+    p post
+    m = FILENAME_REGEX.match(post.raw)
     short_url = m[2]
     u = Upload.find_by(sha1: Upload.sha1_from_short_url(short_url))
     filename = local_store.path_for(u)
@@ -67,7 +68,8 @@ class Demonstrator
         next
       end
 
-      exists_email = User.find_by(email: (demo[:email]).downcase)
+      exists_email = UserEmail.find_by(email: demo[:email].downcase)
+
       if exists_email
         @process_log += "E-Mail #{demo[:email]} existiert schon.\n"
         next

@@ -16,9 +16,8 @@ load File.expand_path('lib/demonstrator/demonstrator.rb', __dir__)
 after_initialize do
   load File.expand_path('../app/jobs/regular/process_topic.rb', __FILE__)
 
-  add_model_callback(Topic, :after_create) do
+  add_model_callback(Post, :after_create) do
     # TODO: put in job rather than wait on post
-    d_cat = Category.find(SiteSetting.demonstrator_category)
-    Jobs.enqueue(:process_topic, topic_id: self.id) if d_cat.id == self.category.id
+    Jobs.enqueue(:process_topic, topic_id: self.topic.id) if self.topic.category.id == SiteSetting.demonstrator_category.to_i && self.post_number == 1
   end
 end
