@@ -18,6 +18,6 @@ after_initialize do
 
   add_model_callback(Post, :after_create) do
     # TODO: put in job rather than wait on post
-    Jobs.enqueue(:process_topic, topic_id: self.topic.id) if self.topic.category.id == SiteSetting.demonstrator_category.to_i && self.post_number == 1
+    Jobs::ProcessTopic.new.execute(topic_id: self.topic.id) if self.topic.category.id == SiteSetting.demonstrator_category.to_i && self.post_number == 1
   end
 end

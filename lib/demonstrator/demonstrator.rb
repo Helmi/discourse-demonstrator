@@ -50,8 +50,11 @@ class Demonstrator
     id_column = sheet.first.find_index('Demonstrator ID')
     group_member_column = sheet.first.find_index('Provisionsebene')
     sheet.each 1 do |row|
-      demos.append({ id: row[id_column], email: row[email_column], add_to_group: (row[group_member_column] == 1) })
+      email = row[email_column].value if row[email_column].class == Spreadsheet::Formula
+
+      demos.append({ id: row[id_column], email: email || row[email_column], add_to_group: (row[group_member_column] == 1) })
     end
+
     demos
   end
 
@@ -128,6 +131,12 @@ class Demonstrator
   end
 
   def self.notify_complete(topic)
-    Post.create(topic_id: topic.id, user_id: -1, raw: @process_log)
+    post = PostCreator.new(
+      User.find(-1),
+      raw: @process_log,
+      skip_jobs: true,
+      skip_validations: true,
+      topic_id: topic.id,
+    ).create
   end
 end
