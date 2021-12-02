@@ -14,7 +14,7 @@ class Demonstrator
       @process_log = ""
       invite_missing(demos, invited_by)
       remove_missing_id(demos)
-      sleep 30
+
       notify_complete(topic)
     else
       Rails.logger.error("Something is broken")
@@ -51,8 +51,10 @@ class Demonstrator
     group_member_column = sheet.first.find_index('Provisionsebene')
     sheet.each 1 do |row|
       email = row[email_column].value if row[email_column].class == Spreadsheet::Formula
+      id = row[id_column].value if row[id_column].class == Spreadsheet::Formula
+      add_to_group = row[group_member_column].value if row[group_member_column].class == Spreadsheet::Formula
 
-      demos.append({ id: row[id_column], email: email || row[email_column], add_to_group: (row[group_member_column] == 1) })
+      demos.append({ id: id || row[id_column], email: email || row[email_column], add_to_group: (add_to_group || row[group_member_column]) == 1 })
     end
 
     demos
