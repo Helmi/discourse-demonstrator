@@ -12,13 +12,18 @@ class Demonstrator
       demos = get_demonstrator_ids(filename)
       invited_by = User.find(topic.user_id)
       @process_log = ""
-      invite_missing(demos, invited_by)
+      emails = invite_missing(demos, invited_by)
       remove_missing_id(demos)
+      remove_old_invites(emails)
 
       notify_complete(topic)
     else
       Rails.logger.error("Something is broken")
     end
+  end
+
+  def self.remove_old_invites(emails)
+    Invite.where.not(email: emails).destroy_all
   end
 
   def self.can_process_topic
@@ -63,8 +68,13 @@ class Demonstrator
   def self.invite_missing(demos, invited_by)
     group = Group.find_by_name(SiteSetting.demonstrator_group)
     @process_log += "## Neue User importieren:\n\n"
+    emails = []
     demos.each.with_index(1) do |demo, index|
       next unless demo[:id]
+      next unless demo[:email]
+
+      emails.push(demo[:email])
+
       @process_log += "#{index} (#{demo[:id]}) -> "
       exists_ucf = UserCustomField.find_by(value: demo[:id], name: SiteSetting.demonstrator_ucf)
       if exists_ucf
@@ -84,15 +94,22 @@ class Demonstrator
         @process_log += "Einladung an #{demo[:email]} existiert schon.\n"
         next
       end
-      opts = {}
+
+      opts = {
+        expires_at: Time.zone.now + 3.months
+      }
+
       opts[:email] = demo[:email]
       if demo[:add_to_group]
         opts[:group_ids] = [group.id]
       end
+
       Invite.generate(invited_by, opts)
       @process_log += "\n**Eingeladen** #{demo[:email]}\n\n "
     end
     @process_log += "\nKeine weiteren neuen User\n\n\n"
+
+    emails
   end
 
   def self.remove_missing_id(demos)
