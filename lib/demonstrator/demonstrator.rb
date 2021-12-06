@@ -23,7 +23,10 @@ class Demonstrator
   end
 
   def self.remove_old_invites(emails)
-    Invite.where.not(email: emails).destroy_all
+    invites = Invite.where.not(email: emails)
+    deleted_invites = invites.pluck(:email)
+    @process_log += "## Gelöschte Einladungen\n\n#{deleted_invites.join("\n")}\n" if deleted_invites.length
+    invites.destroy_all
   end
 
   def self.can_process_topic
@@ -71,9 +74,9 @@ class Demonstrator
     emails = []
     demos.each.with_index(1) do |demo, index|
       next unless demo[:id]
-      next unless demo[:email]
+      next unless demo[:email].downcase
 
-      emails.push(demo[:email])
+      emails.push(demo[:email].downcase)
 
       @process_log += "#{index} (#{demo[:id]}) -> "
       exists_ucf = UserCustomField.find_by(value: demo[:id], name: SiteSetting.demonstrator_ucf)
