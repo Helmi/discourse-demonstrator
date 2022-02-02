@@ -2,7 +2,7 @@
 
 # name: discourse-demonstrator
 # about: Send invites to new demonstrators
-# version: 0.2.0
+# version: 0.2.1
 # authors: Pfaffman, Helmi
 # url: https://github.com/helmi/discourse-demonstrator
 
@@ -17,7 +17,8 @@ after_initialize do
   load File.expand_path('../app/jobs/regular/process_topic.rb', __FILE__)
 
   add_model_callback(Post, :after_create) do
-    # TODO: put in job rather than wait on post
-    Jobs::ProcessTopic.new.execute(topic_id: self.topic.id) if self.topic.category.id == SiteSetting.demonstrator_category.to_i && self.post_number == 1
+    if self.topic.archetype != Archetype.private_message && self.topic.category.id == SiteSetting.demonstrator_category.to_i && self.post_number == 1
+      Jobs::ProcessTopic.new.execute(topic_id: self.topic.id)
+    end
   end
 end
